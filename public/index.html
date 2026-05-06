@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SecureVault</title>
+
+    <!-- ✅ USE CSS FILE -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="hero">
+    <h1 class="logo">SecureVault</h1>
+    <p class="tagline">Store your passwords securely with encryption 🔐</p>
+
+    <!-- ICON ROW -->
+    <div class="features">
+        <div>⚡ Fast</div>
+        <div>🔒 Secure</div>
+        <div>🧠 Smart</div>
+    </div>
+
+    <!-- FLOATING ICONS -->
+    <div class="floating-icons">
+        <span>🔐</span>
+        <span>🛡️</span>
+        <span>💾</span>
+        <span>🔑</span>
+    </div>
+</div>
+<div class="auth-wrapper">
+
+    <div id="loginSection" class="container">
+        <h3>Login</h3>
+        <input id="loginUsername" placeholder="Username">
+        <input id="loginPassword" type="password" placeholder="Password">
+        <button class="primary" onclick="login()">Login</button>
+        <button class="secondary" onclick="showRegister()">Register</button>
+    </div>
+
+    <div id="registerSection" class="container" style="display:none;">
+        <h3>Register</h3>
+        <input id="registerUsername">
+        <input id="registerPassword" type="password">
+        <button class="primary" onclick="register()">Register</button>
+        <button class="secondary" onclick="showLogin()">Back</button>
+    </div>
+
+</div>
+
+<div id="dashboardSection">
+    <div class="dashboard-box">
+
+        <input id="website" placeholder="Website">
+        <input id="username" placeholder="Username">
+
+        <div class="input-group">
+            <input id="password" type="password" placeholder="Password" oninput="checkStrength()">
+            <span class="eye" onclick="toggleInputPassword()">👁️</span>
+        </div>
+
+        <button class="primary generate-btn" onclick="generatePassword()">
+            ⚡ Generate Strong Password
+        </button>
+
+        <div id="strengthBar"></div>
+        <small id="strengthText"></small>
+
+        <button class="primary" onclick="savePassword()">Save Password</button>
+        <button class="secondary" onclick="loadPasswords()">Load Passwords</button>
+        <button class="danger" onclick="logout()">Logout</button>
+
+        <input id="searchBar" placeholder="Search..." onkeyup="filterPasswords()">
+
+        <div id="list"></div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="script.js"></script>
+
+<script>
+function showRegister(){
+    loginSection.style.display="none";
+    registerSection.style.display="block";
+}
+
+function showLogin(){
+    registerSection.style.display="none";
+    loginSection.style.display="block";
+}
+
+function toggleInputPassword(){
+    const p = document.getElementById("password");
+    p.type = p.type === "password" ? "text" : "password";
+}
+
+async function login(){
+    const res = await fetch("http://localhost:5000/api/auth/login",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            username:loginUsername.value,
+            password:loginPassword.value
+        })
+    });
+
+    const data = await res.json();
+
+    if(data.token){
+        localStorage.setItem("token",data.token);
+
+        document.getElementById("list").innerHTML="";
+        window.allPasswords=[];
+        passwordsLoaded=false;
+
+        loginSection.style.display="none";
+        registerSection.style.display="none";
+        dashboardSection.style.display="block";
+
+        showToast("Login success");
+    }
+}
+
+async function register(){
+    await fetch("http://localhost:5000/api/auth/register",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            username:registerUsername.value,
+            password:registerPassword.value
+        })
+    });
+
+    showLogin();
+}
+
+function logout(){
+    localStorage.removeItem("token");
+    dashboardSection.style.display="none";
+    loginSection.style.display="block";
+}
+</script>
+
+</body>
+</html>
