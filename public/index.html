@@ -2,8 +2,6 @@
 <html>
 <head>
     <title>SecureVault</title>
-
-    <!-- ✅ USE CSS FILE -->
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -12,68 +10,43 @@
 <div class="hero">
     <h1 class="logo">SecureVault</h1>
     <p class="tagline">Store your passwords securely with encryption 🔐</p>
-
-    <!-- ICON ROW -->
-    <div class="features">
-        <div>⚡ Fast</div>
-        <div>🔒 Secure</div>
-        <div>🧠 Smart</div>
-    </div>
-
-    <!-- FLOATING ICONS -->
-    <div class="floating-icons">
-        <span>🔐</span>
-        <span>🛡️</span>
-        <span>💾</span>
-        <span>🔑</span>
-    </div>
 </div>
+
 <div class="auth-wrapper">
 
     <div id="loginSection" class="container">
         <h3>Login</h3>
         <input id="loginUsername" placeholder="Username">
         <input id="loginPassword" type="password" placeholder="Password">
-        <button class="primary" onclick="login()">Login</button>
-        <button class="secondary" onclick="showRegister()">Register</button>
+        <button onclick="login()">Login</button>
+        <button onclick="showRegister()">Register</button>
     </div>
 
     <div id="registerSection" class="container" style="display:none;">
         <h3>Register</h3>
-        <input id="registerUsername">
-        <input id="registerPassword" type="password">
-        <button class="primary" onclick="register()">Register</button>
-        <button class="secondary" onclick="showLogin()">Back</button>
+        <input id="registerUsername" placeholder="Username">
+        <input id="registerPassword" type="password" placeholder="Password">
+        <button onclick="register()">Register</button>
+        <button onclick="showLogin()">Back</button>
     </div>
 
 </div>
 
-<div id="dashboardSection">
-    <div class="dashboard-box">
+<div id="dashboardSection" style="display:none;">
+    <input id="website" placeholder="Website">
+    <input id="username" placeholder="Username">
 
-        <input id="website" placeholder="Website">
-        <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
 
-        <div class="input-group">
-            <input id="password" type="password" placeholder="Password" oninput="checkStrength()">
-            <span class="eye" onclick="toggleInputPassword()">👁️</span>
-        </div>
+    <button onclick="generatePassword()">Generate</button>
 
-        <button class="primary generate-btn" onclick="generatePassword()">
-            ⚡ Generate Strong Password
-        </button>
+    <button onclick="savePassword()">Save Password</button>
+    <button onclick="loadPasswords()">Load Passwords</button>
+    <button onclick="logout()">Logout</button>
 
-        <div id="strengthBar"></div>
-        <small id="strengthText"></small>
+    <input id="searchBar" placeholder="Search..." onkeyup="filterPasswords()">
 
-        <button class="primary" onclick="savePassword()">Save Password</button>
-        <button class="secondary" onclick="loadPasswords()">Load Passwords</button>
-        <button class="danger" onclick="logout()">Logout</button>
-
-        <input id="searchBar" placeholder="Search..." onkeyup="filterPasswords()">
-
-        <div id="list"></div>
-    </div>
+    <div id="list"></div>
 </div>
 
 <div id="toast"></div>
@@ -81,6 +54,14 @@
 <script src="script.js"></script>
 
 <script>
+/* ✅ GLOBAL API FIX (IMPORTANT) */
+const API_URL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:5000"
+    : "https://securevault-backend-xpsb.onrender.com";
+
+/* UI SWITCH */
 function showRegister(){
     loginSection.style.display="none";
     registerSection.style.display="block";
@@ -91,51 +72,68 @@ function showLogin(){
     loginSection.style.display="block";
 }
 
-function toggleInputPassword(){
-    const p = document.getElementById("password");
-    p.type = p.type === "password" ? "text" : "password";
-}
-
+/* LOGIN */
 async function login(){
-    const res = await fetch("http://localhost:5000/api/auth/login",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-            username:loginUsername.value,
-            password:loginPassword.value
-        })
-    });
+    try{
+        const res = await fetch(`${API_URL}/api/auth/login`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({
+                username:loginUsername.value,
+                password:loginPassword.value
+            })
+        });
 
-    const data = await res.json();
+        const data = await res.json();
 
-    if(data.token){
+        if(!res.ok){
+            alert(data.message || "Login failed ❌");
+            return;
+        }
+
         localStorage.setItem("token",data.token);
-
-        document.getElementById("list").innerHTML="";
-        window.allPasswords=[];
-        passwordsLoaded=false;
 
         loginSection.style.display="none";
         registerSection.style.display="none";
         dashboardSection.style.display="block";
 
-        showToast("Login success");
+        showToast("Login success ✅");
+
+    }catch(err){
+        console.log(err);
+        alert("Server error ❌");
     }
 }
 
+/* REGISTER */
 async function register(){
-    await fetch("http://localhost:5000/api/auth/register",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-            username:registerUsername.value,
-            password:registerPassword.value
-        })
-    });
+    try{
+        const res = await fetch(`${API_URL}/api/auth/register`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({
+                username:registerUsername.value,
+                password:registerPassword.value
+            })
+        });
 
-    showLogin();
+        const data = await res.json();
+
+        if(!res.ok){
+            alert(data.message || "Register failed ❌");
+            return;
+        }
+
+        showToast("Registered ✅");
+        showLogin();
+
+    }catch(err){
+        console.log(err);
+        alert("Server error ❌");
+    }
 }
 
+/* LOGOUT */
 function logout(){
     localStorage.removeItem("token");
     dashboardSection.style.display="none";

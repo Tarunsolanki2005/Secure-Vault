@@ -1,13 +1,14 @@
 let passwordsLoaded = false;
 window.allPasswords = [];
 
-// 🌐 API
+// 🌐 API (AUTO SWITCH: LOCAL ↔ LIVE)
 const API_URL =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1"
     ? "http://localhost:5000"
     : "https://securevault-backend-xpsb.onrender.com";
 
+// 🔐 GET TOKEN
 function getToken() {
     return localStorage.getItem("token");
 }
@@ -15,6 +16,7 @@ function getToken() {
 // 🔔 TOAST
 function showToast(msg){
     const t = document.getElementById("toast");
+    if (!t) return;
     t.innerText = msg;
     t.classList.add("show");
     setTimeout(()=>t.classList.remove("show"),2000);
@@ -25,6 +27,8 @@ function checkStrength() {
     const pass = document.getElementById("password").value;
     const bar = document.getElementById("strengthBar");
     const text = document.getElementById("strengthText");
+
+    if (!bar || !text) return;
 
     let strength = 0;
 
@@ -64,6 +68,7 @@ function generatePassword() {
 // 👁️ TOGGLE PASSWORD INPUT
 function toggleInputPassword() {
     const input = document.getElementById("password");
+    if (!input) return;
     input.type = input.type === "password" ? "text" : "password";
 }
 
@@ -95,12 +100,10 @@ async function savePassword(){
             body:JSON.stringify({website,username,password})
         });
 
-        if (!res.ok) {
-            throw new Error("Save failed");
-        }
+        if (!res.ok) throw new Error();
 
         const data = await res.json();
-        showToast(data.message || "Saved");
+        showToast(data.message || "Saved ✅");
 
         if(passwordsLoaded) loadPasswords();
 
@@ -116,14 +119,17 @@ async function savePassword(){
 async function loadPasswords(){
     const token = getToken();
 
-    if (!token) return;
+    if (!token) {
+        showToast("Login first ❌");
+        return;
+    }
 
     try{
         const res = await fetch(`${API_URL}/api/password/`,{
             headers:{ "Authorization":"Bearer " + token }
         });
 
-        if (!res.ok) throw new Error("Load failed");
+        if (!res.ok) throw new Error();
 
         const data = await res.json();
 
@@ -140,6 +146,8 @@ async function loadPasswords(){
 // ================= DISPLAY =================
 function displayPasswords(data) {
     const container = document.getElementById("list");
+    if (!container) return;
+
     container.innerHTML = "";
 
     if (!data || data.length === 0) {
@@ -170,6 +178,29 @@ function displayPasswords(data) {
 
         container.appendChild(div);
     });
+}
+
+// ================= SEARCH =================
+function filterPasswords(){
+    const q = document.getElementById("searchBar").value.toLowerCase();
+
+    const filtered = window.allPasswords.filter(i =>
+        i.website.toLowerCase().includes(q)
+    );
+
+    displayPasswords(filtered);
+}
+
+// ================= TOGGLE =================
+function togglePass(btn, pass) {
+    const el = btn.closest(".pass-row").querySelector(".pass");
+    el.innerText = (el.innerText === "••••••") ? pass : "••••••";
+}
+
+// ================= COPY =================
+function copyPassword(pass){
+    navigator.clipboard.writeText(pass);
+    showToast("Copied");
 }
 
 // ================= DELETE =================
@@ -203,7 +234,7 @@ async function updatePassword(id, website, username, password) {
             body: JSON.stringify({ website, username, password })
         });
 
-        if (!res.ok) throw new Error("Update failed");
+        if (!res.ok) throw new Error();
 
         const data = await res.json();
         showToast(data.message || "Updated");
@@ -216,17 +247,7 @@ async function updatePassword(id, website, username, password) {
     }
 }
 
-// ================= HELPERS =================
-function togglePass(btn, pass) {
-    const el = btn.closest(".pass-row").querySelector(".pass");
-    el.innerText = (el.innerText === "••••••") ? pass : "••••••";
-}
-
-function copyPassword(pass){
-    navigator.clipboard.writeText(pass);
-    showToast("Copied");
-}
-
+// ================= EDIT =================
 function editPassword(id, website, username, password) {
     const newWebsite = prompt("Edit Website:", website);
     if (newWebsite === null) return;
@@ -245,10 +266,15 @@ function editPassword(id, website, username, password) {
     updatePassword(id, newWebsite, newUsername, newPassword);
 }
 
+// ================= CLEAR =================
 function clearInputs(){
     document.getElementById("website").value="";
     document.getElementById("username").value="";
     document.getElementById("password").value="";
-    document.getElementById("strengthBar").style.width = "0%";
-    document.getElementById("strengthText").innerText = "";
+
+    const bar = document.getElementById("strengthBar");
+    const text = document.getElementById("strengthText");
+
+    if(bar) bar.style.width = "0%";
+    if(text) text.innerText = "";
 }
