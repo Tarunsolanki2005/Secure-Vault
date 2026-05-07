@@ -1,43 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>SecureVault</title>
+
+    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
+
+    <!-- Optional favicon fix (removes 404 error) -->
+    <link rel="icon" href="data:,">
 </head>
 
 <body>
 
+<!-- HERO SECTION -->
 <div class="hero">
     <h1 class="logo">SecureVault</h1>
     <p class="tagline">Store your passwords securely with encryption 🔐</p>
 </div>
 
+<!-- AUTH SECTION -->
 <div class="auth-wrapper">
 
+    <!-- LOGIN -->
     <div id="loginSection" class="container">
         <h3>Login</h3>
         <input id="loginUsername" placeholder="Username">
         <input id="loginPassword" type="password" placeholder="Password">
+
         <button onclick="login()">Login</button>
         <button onclick="showRegister()">Register</button>
     </div>
 
+    <!-- REGISTER -->
     <div id="registerSection" class="container" style="display:none;">
         <h3>Register</h3>
         <input id="registerUsername" placeholder="Username">
         <input id="registerPassword" type="password" placeholder="Password">
+
         <button onclick="register()">Register</button>
         <button onclick="showLogin()">Back</button>
     </div>
 
 </div>
 
+<!-- DASHBOARD -->
 <div id="dashboardSection" style="display:none;">
+
     <input id="website" placeholder="Website">
     <input id="username" placeholder="Username">
     <input id="password" type="password" placeholder="Password">
 
-    <button onclick="generatePassword()">Generate</button>
+    <button onclick="generatePassword()">Generate Strong Password</button>
 
     <button onclick="savePassword()">Save Password</button>
     <button onclick="loadPasswords()">Load Passwords</button>
@@ -46,99 +60,14 @@
     <input id="searchBar" placeholder="Search..." onkeyup="filterPasswords()">
 
     <div id="list"></div>
+
 </div>
 
+<!-- TOAST -->
 <div id="toast"></div>
 
+<!-- ✅ ONLY SCRIPT (VERY IMPORTANT) -->
 <script src="script.js"></script>
-
-<script>
-/* 🌐 SINGLE SOURCE OF TRUTH (VERY IMPORTANT) */
-const API_URL =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1"
-    ? "http://localhost:5000"
-    : "https://securevault-backend-xpsb.onrender.com";
-
-/* UI SWITCH */
-function showRegister(){
-    document.getElementById("loginSection").style.display="none";
-    document.getElementById("registerSection").style.display="block";
-}
-
-function showLogin(){
-    document.getElementById("registerSection").style.display="none";
-    document.getElementById("loginSection").style.display="block";
-}
-
-/* LOGIN */
-async function login(){
-    try{
-        const res = await fetch(`${API_URL}/api/auth/login`,{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({
-                username:document.getElementById("loginUsername").value,
-                password:document.getElementById("loginPassword").value
-            })
-        });
-
-        const data = await res.json();
-
-        if(!res.ok){
-            alert(data.message || "Login failed ❌");
-            return;
-        }
-
-        localStorage.setItem("token",data.token);
-
-        document.getElementById("loginSection").style.display="none";
-        document.getElementById("registerSection").style.display="none";
-        document.getElementById("dashboardSection").style.display="block";
-
-        showToast("Login success ✅");
-
-    }catch(err){
-        console.log(err);
-        alert("Server error ❌");
-    }
-}
-
-/* REGISTER */
-async function register(){
-    try{
-        const res = await fetch(`${API_URL}/api/auth/register`,{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({
-                username:document.getElementById("registerUsername").value,
-                password:document.getElementById("registerPassword").value
-            })
-        });
-
-        const data = await res.json();
-
-        if(!res.ok){
-            alert(data.message || "Register failed ❌");
-            return;
-        }
-
-        showToast("Registered ✅");
-        showLogin();
-
-    }catch(err){
-        console.log(err);
-        alert("Server error ❌");
-    }
-}
-
-/* LOGOUT */
-function logout(){
-    localStorage.removeItem("token");
-    document.getElementById("dashboardSection").style.display="none";
-    document.getElementById("loginSection").style.display="block";
-}
-</script>
 
 </body>
 </html>

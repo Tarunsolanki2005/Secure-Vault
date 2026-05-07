@@ -1,19 +1,93 @@
 let passwordsLoaded = false;
 window.allPasswords = [];
 
-// 🌐 API (AUTO SWITCH: LOCAL ↔ LIVE)
+// 🌐 API
 const API_URL =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1"
     ? "http://localhost:5000"
     : "https://securevault-backend-xpsb.onrender.com";
 
-// 🔐 GET TOKEN
-function getToken() {
-    return localStorage.getItem("token");
+// ================= UI =================
+function showRegister(){
+    document.getElementById("loginSection").style.display="none";
+    document.getElementById("registerSection").style.display="block";
 }
 
-// 🔔 TOAST
+function showLogin(){
+    document.getElementById("registerSection").style.display="none";
+    document.getElementById("loginSection").style.display="block";
+}
+
+// ================= LOGIN =================
+async function login(){
+    try{
+        const res = await fetch(`${API_URL}/api/auth/login`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({
+                username:document.getElementById("loginUsername").value,
+                password:document.getElementById("loginPassword").value
+            })
+        });
+
+        const data = await res.json();
+
+        if(!res.ok){
+            alert(data.message || "Login failed ❌");
+            return;
+        }
+
+        localStorage.setItem("token",data.token);
+
+        document.getElementById("loginSection").style.display="none";
+        document.getElementById("registerSection").style.display="none";
+        document.getElementById("dashboardSection").style.display="block";
+
+        showToast("Login success ✅");
+
+    }catch(err){
+        console.log(err);
+        alert("Server error ❌");
+    }
+}
+
+// ================= REGISTER =================
+async function register(){
+    try{
+        const res = await fetch(`${API_URL}/api/auth/register`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({
+                username:document.getElementById("registerUsername").value,
+                password:document.getElementById("registerPassword").value
+            })
+        });
+
+        const data = await res.json();
+
+        if(!res.ok){
+            alert(data.message || "Register failed ❌");
+            return;
+        }
+
+        showToast("Registered ✅");
+        showLogin();
+
+    }catch(err){
+        console.log(err);
+        alert("Server error ❌");
+    }
+}
+
+// ================= LOGOUT =================
+function logout(){
+    localStorage.removeItem("token");
+    document.getElementById("dashboardSection").style.display="none";
+    document.getElementById("loginSection").style.display="block";
+}
+
+// ================= TOAST =================
 function showToast(msg){
     const t = document.getElementById("toast");
     if (!t) return;
@@ -22,7 +96,7 @@ function showToast(msg){
     setTimeout(()=>t.classList.remove("show"),2000);
 }
 
-// 💪 PASSWORD STRENGTH
+// ================= PASSWORD STRENGTH =================
 function checkStrength() {
     const pass = document.getElementById("password").value;
     const bar = document.getElementById("strengthBar");
@@ -52,7 +126,7 @@ function checkStrength() {
     }
 }
 
-// 🔐 GENERATE PASSWORD
+// ================= GENERATE =================
 function generatePassword() {
     const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
     let pass = "";
@@ -65,16 +139,9 @@ function generatePassword() {
     checkStrength();
 }
 
-// 👁️ TOGGLE PASSWORD INPUT
-function toggleInputPassword() {
-    const input = document.getElementById("password");
-    if (!input) return;
-    input.type = input.type === "password" ? "text" : "password";
-}
-
 // ================= SAVE =================
 async function savePassword(){
-    const token = getToken();
+    const token = localStorage.getItem("token");
 
     if (!token) {
         showToast("Login first ❌");
@@ -117,7 +184,7 @@ async function savePassword(){
 
 // ================= LOAD =================
 async function loadPasswords(){
-    const token = getToken();
+    const token = localStorage.getItem("token");
 
     if (!token) {
         showToast("Login first ❌");
@@ -191,21 +258,19 @@ function filterPasswords(){
     displayPasswords(filtered);
 }
 
-// ================= TOGGLE =================
+// ================= HELPERS =================
 function togglePass(btn, pass) {
     const el = btn.closest(".pass-row").querySelector(".pass");
     el.innerText = (el.innerText === "••••••") ? pass : "••••••";
 }
 
-// ================= COPY =================
 function copyPassword(pass){
     navigator.clipboard.writeText(pass);
     showToast("Copied");
 }
 
-// ================= DELETE =================
 async function deletePassword(id){
-    const token = getToken();
+    const token = localStorage.getItem("token");
 
     if (!token) return;
 
@@ -218,9 +283,8 @@ async function deletePassword(id){
     loadPasswords();
 }
 
-// ================= UPDATE =================
 async function updatePassword(id, website, username, password) {
-    const token = getToken();
+    const token = localStorage.getItem("token");
 
     if (!token) return;
 
@@ -247,7 +311,6 @@ async function updatePassword(id, website, username, password) {
     }
 }
 
-// ================= EDIT =================
 function editPassword(id, website, username, password) {
     const newWebsite = prompt("Edit Website:", website);
     if (newWebsite === null) return;
@@ -266,15 +329,8 @@ function editPassword(id, website, username, password) {
     updatePassword(id, newWebsite, newUsername, newPassword);
 }
 
-// ================= CLEAR =================
 function clearInputs(){
     document.getElementById("website").value="";
     document.getElementById("username").value="";
     document.getElementById("password").value="";
-
-    const bar = document.getElementById("strengthBar");
-    const text = document.getElementById("strengthText");
-
-    if(bar) bar.style.width = "0%";
-    if(text) text.innerText = "";
 }
