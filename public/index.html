@@ -35,7 +35,6 @@
 <div id="dashboardSection" style="display:none;">
     <input id="website" placeholder="Website">
     <input id="username" placeholder="Username">
-
     <input id="password" type="password" placeholder="Password">
 
     <button onclick="generatePassword()">Generate</button>
@@ -54,7 +53,7 @@
 <script src="script.js"></script>
 
 <script>
-/* ✅ GLOBAL API FIX (IMPORTANT) */
+/* 🌐 SINGLE SOURCE OF TRUTH (VERY IMPORTANT) */
 const API_URL =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1"
@@ -63,13 +62,13 @@ const API_URL =
 
 /* UI SWITCH */
 function showRegister(){
-    loginSection.style.display="none";
-    registerSection.style.display="block";
+    document.getElementById("loginSection").style.display="none";
+    document.getElementById("registerSection").style.display="block";
 }
 
 function showLogin(){
-    registerSection.style.display="none";
-    loginSection.style.display="block";
+    document.getElementById("registerSection").style.display="none";
+    document.getElementById("loginSection").style.display="block";
 }
 
 /* LOGIN */
@@ -79,8 +78,8 @@ async function login(){
             method:"POST",
             headers:{"Content-Type":"application/json"},
             body:JSON.stringify({
-                username:loginUsername.value,
-                password:loginPassword.value
+                username:document.getElementById("loginUsername").value,
+                password:document.getElementById("loginPassword").value
             })
         });
 
@@ -93,9 +92,9 @@ async function login(){
 
         localStorage.setItem("token",data.token);
 
-        loginSection.style.display="none";
-        registerSection.style.display="none";
-        dashboardSection.style.display="block";
+        document.getElementById("loginSection").style.display="none";
+        document.getElementById("registerSection").style.display="none";
+        document.getElementById("dashboardSection").style.display="block";
 
         showToast("Login success ✅");
 
@@ -112,8 +111,8 @@ async function register(){
             method:"POST",
             headers:{"Content-Type":"application/json"},
             body:JSON.stringify({
-                username:registerUsername.value,
-                password:registerPassword.value
+                username:document.getElementById("registerUsername").value,
+                password:document.getElementById("registerPassword").value
             })
         });
 
@@ -136,8 +135,8 @@ async function register(){
 /* LOGOUT */
 function logout(){
     localStorage.removeItem("token");
-    dashboardSection.style.display="none";
-    loginSection.style.display="block";
+    document.getElementById("dashboardSection").style.display="none";
+    document.getElementById("loginSection").style.display="block";
 }
 </script>
 
