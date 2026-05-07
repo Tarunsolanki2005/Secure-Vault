@@ -1,10 +1,16 @@
+const API_URL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:5000"
+    : "https://securevault-backend-xpsb.onrender.com";
+
 async function login() {
 
     const username = document.getElementById("loginUsername").value;
     const password = document.getElementById("loginPassword").value;
 
     try {
-        const res = await fetch("http://localhost:5000/api/auth/login", {
+        const res = await fetch(`${API_URL}/api/auth/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -28,7 +34,7 @@ async function login() {
 
         alert("Login successful ✅");
 
-        // ✅ SWITCH UI SAFELY
+        // ✅ SWITCH UI
         document.getElementById("loginSection").style.display = "none";
         document.getElementById("registerSection").style.display = "none";
         document.getElementById("dashboardSection").style.display = "block";
