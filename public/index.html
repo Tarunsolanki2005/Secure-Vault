@@ -18,7 +18,15 @@
     <h1 class="logo">SecureVault</h1>
     <p class="tagline">Store your passwords securely with encryption 🔐</p>
 </div>
-
+<div class="project-info">
+    <p>🔐 AES-style secure storage • 💾 Local encrypted vault • ⚡ Fast password manager</p>
+</div>
+<div class="floating-icons">
+    <span>🔐</span>
+    <span>🛡️</span>
+    <span>🔑</span>
+    <span>💾</span>
+</div>
 <!-- AUTH SECTION -->
 <div class="auth-wrapper">
 
@@ -36,8 +44,16 @@
     <div id="registerSection" class="container" style="display:none;">
         <h3>Register</h3>
         <input id="registerUsername" placeholder="Username">
-        <input id="registerPassword" type="password" placeholder="Password">
+        <input id="registerPassword"
+               type="password"
+               placeholder="Password"
+               oninput="checkStrength(this.value)">
 
+        <div id="strengthBar">
+            <div></div>
+        </div>
+
+<p id="strengthText"></p>
         <button onclick="register()">Register</button>
         <button onclick="showLogin()">Back</button>
     </div>
@@ -45,7 +61,7 @@
 </div>
 
 <!-- DASHBOARD -->
-<div id="dashboardSection" style="display:none;">
+<div id="dashboardSection" class="dashboard-box" style="display:none;">
 
     <input id="website" placeholder="Website">
     <input id="username" placeholder="Username">

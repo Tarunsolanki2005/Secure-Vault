@@ -334,3 +334,39 @@ function clearInputs(){
     document.getElementById("username").value="";
     document.getElementById("password").value="";
 }
+function checkStrength(password) {
+    const barContainer = document.getElementById("strengthBar");
+    const text = document.getElementById("strengthText");
+
+    if (!barContainer || !text) return;
+
+    const bar = barContainer.querySelector("div");
+    if (!bar) return;
+
+    let strength = 0;
+
+    if (password.length > 5) strength++;
+    if (password.length > 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[@$!%*?&]/.test(password)) strength++;
+
+    let percent = strength * 20;
+
+    let color = "red";
+    let label = "Weak";
+
+    if (strength >= 2) {
+        color = "orange";
+        label = "Medium";
+    }
+
+    if (strength >= 4) {
+        color = "#22c55e";
+        label = "Strong";
+    }
+
+    bar.style.width = percent + "%";
+    bar.style.background = color;
+    text.innerText = "Strength: " + label;
+}
