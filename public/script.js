@@ -9,64 +9,64 @@ const API_URL =
     : "https://securevault-backend-xpsb.onrender.com";
 
 // ================= UI =================
-function showRegister(){
-    document.getElementById("loginSection").style.display="none";
-    document.getElementById("registerSection").style.display="block";
+function showRegister() {
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("registerSection").style.display = "block";
 }
 
-function showLogin(){
-    document.getElementById("registerSection").style.display="none";
-    document.getElementById("loginSection").style.display="block";
+function showLogin() {
+    document.getElementById("registerSection").style.display = "none";
+    document.getElementById("loginSection").style.display = "block";
 }
 
 // ================= LOGIN =================
-async function login(){
-    try{
-        const res = await fetch(`${API_URL}/api/auth/login`,{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({
-                username:document.getElementById("loginUsername").value,
-                password:document.getElementById("loginPassword").value
+async function login() {
+    try {
+        const res = await fetch(`${API_URL}/api/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                username: document.getElementById("loginUsername").value,
+                password: document.getElementById("loginPassword").value
             })
         });
 
         const data = await res.json();
 
-        if(!res.ok){
+        if (!res.ok) {
             alert(data.message || "Login failed ❌");
             return;
         }
 
-        localStorage.setItem("token",data.token);
+        localStorage.setItem("token", data.token);
 
-        document.getElementById("loginSection").style.display="none";
-        document.getElementById("registerSection").style.display="none";
-        document.getElementById("dashboardSection").style.display="block";
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("registerSection").style.display = "none";
+        document.getElementById("dashboardSection").style.display = "block";
 
         showToast("Login success ✅");
 
-    }catch(err){
+    } catch (err) {
         console.log(err);
         alert("Server error ❌");
     }
 }
 
 // ================= REGISTER =================
-async function register(){
-    try{
-        const res = await fetch(`${API_URL}/api/auth/register`,{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({
-                username:document.getElementById("registerUsername").value,
-                password:document.getElementById("registerPassword").value
+async function register() {
+    try {
+        const res = await fetch(`${API_URL}/api/auth/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                username: document.getElementById("registerUsername").value,
+                password: document.getElementById("registerPassword").value
             })
         });
 
         const data = await res.json();
 
-        if(!res.ok){
+        if (!res.ok) {
             alert(data.message || "Register failed ❌");
             return;
         }
@@ -74,59 +74,63 @@ async function register(){
         showToast("Registered ✅");
         showLogin();
 
-    }catch(err){
+    } catch (err) {
         console.log(err);
         alert("Server error ❌");
     }
 }
 
 // ================= LOGOUT =================
-function logout(){
+function logout() {
     localStorage.removeItem("token");
-    document.getElementById("dashboardSection").style.display="none";
-    document.getElementById("loginSection").style.display="block";
+    document.getElementById("dashboardSection").style.display = "none";
+    document.getElementById("loginSection").style.display = "block";
 }
 
 // ================= TOAST =================
-function showToast(msg){
+function showToast(msg) {
     const t = document.getElementById("toast");
     if (!t) return;
     t.innerText = msg;
     t.classList.add("show");
-    setTimeout(()=>t.classList.remove("show"),2000);
+    setTimeout(() => t.classList.remove("show"), 2000);
 }
 
-// ================= PASSWORD STRENGTH =================
-function checkStrength() {
-    const pass = document.getElementById("password").value;
-    const bar = document.getElementById("strengthBar");
+// ================= PASSWORD STRENGTH (FINAL FIXED) =================
+function checkStrength(password) {
+    const bar = document.getElementById("strengthFill");
     const text = document.getElementById("strengthText");
 
     if (!bar || !text) return;
 
     let strength = 0;
 
-    if (pass.length > 6) strength++;
-    if (/[A-Z]/.test(pass)) strength++;
-    if (/[0-9]/.test(pass)) strength++;
-    if (/[^A-Za-z0-9]/.test(pass)) strength++;
+    if (password.length > 5) strength++;
+    if (password.length > 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[@$!%*?&]/.test(password)) strength++;
 
-    if (strength <= 1) {
-        bar.style.width = "25%";
-        bar.style.background = "red";
-        text.innerText = "Weak";
-    } else if (strength === 2) {
-        bar.style.width = "50%";
-        bar.style.background = "orange";
-        text.innerText = "Medium";
-    } else {
-        bar.style.width = "100%";
-        bar.style.background = "green";
-        text.innerText = "Strong";
+    let percent = (strength / 5) * 100;
+
+    let color = "red";
+    let label = "Weak";
+
+    if (strength >= 2) {
+        color = "orange";
+        label = "Medium";
     }
+    if (strength >= 4) {
+        color = "#22c55e";
+        label = "Strong";
+    }
+
+    bar.style.width = percent + "%";
+    bar.style.background = color;
+    text.innerText = "Strength: " + label;
 }
 
-// ================= GENERATE =================
+// ================= GENERATE PASSWORD =================
 function generatePassword() {
     const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
     let pass = "";
@@ -136,11 +140,11 @@ function generatePassword() {
     }
 
     document.getElementById("password").value = pass;
-    checkStrength();
+    checkStrength(pass);
 }
 
 // ================= SAVE =================
-async function savePassword(){
+async function savePassword() {
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -152,19 +156,19 @@ async function savePassword(){
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
-    if(!website || !username || !password){
+    if (!website || !username || !password) {
         showToast("Fill all fields");
         return;
     }
 
-    try{
-        const res = await fetch(`${API_URL}/api/password/add`,{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json",
-                "Authorization":"Bearer " + token
+    try {
+        const res = await fetch(`${API_URL}/api/password/add`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
             },
-            body:JSON.stringify({website,username,password})
+            body: JSON.stringify({ website, username, password })
         });
 
         if (!res.ok) throw new Error();
@@ -172,18 +176,18 @@ async function savePassword(){
         const data = await res.json();
         showToast(data.message || "Saved ✅");
 
-        if(passwordsLoaded) loadPasswords();
+        if (passwordsLoaded) loadPasswords();
 
         clearInputs();
 
-    }catch(err){
+    } catch (err) {
         console.log(err);
         showToast("Save failed ❌");
     }
 }
 
 // ================= LOAD =================
-async function loadPasswords(){
+async function loadPasswords() {
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -191,9 +195,9 @@ async function loadPasswords(){
         return;
     }
 
-    try{
-        const res = await fetch(`${API_URL}/api/password/`,{
-            headers:{ "Authorization":"Bearer " + token }
+    try {
+        const res = await fetch(`${API_URL}/api/password/`, {
+            headers: { "Authorization": "Bearer " + token }
         });
 
         if (!res.ok) throw new Error();
@@ -204,7 +208,7 @@ async function loadPasswords(){
         displayPasswords(window.allPasswords);
         passwordsLoaded = true;
 
-    }catch(err){
+    } catch (err) {
         console.log(err);
         showToast("Load failed ❌");
     }
@@ -248,7 +252,7 @@ function displayPasswords(data) {
 }
 
 // ================= SEARCH =================
-function filterPasswords(){
+function filterPasswords() {
     const q = document.getElementById("searchBar").value.toLowerCase();
 
     const filtered = window.allPasswords.filter(i =>
@@ -264,109 +268,25 @@ function togglePass(btn, pass) {
     el.innerText = (el.innerText === "••••••") ? pass : "••••••";
 }
 
-function copyPassword(pass){
+function copyPassword(pass) {
     navigator.clipboard.writeText(pass);
     showToast("Copied");
 }
 
-async function deletePassword(id){
+async function deletePassword(id) {
     const token = localStorage.getItem("token");
 
-    if (!token) return;
-
-    await fetch(`${API_URL}/api/password/${id}`,{
-        method:"DELETE",
-        headers:{ "Authorization":"Bearer " + token }
+    await fetch(`${API_URL}/api/password/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": "Bearer " + token }
     });
 
     showToast("Deleted");
     loadPasswords();
 }
 
-async function updatePassword(id, website, username, password) {
-    const token = localStorage.getItem("token");
-
-    if (!token) return;
-
-    try {
-        const res = await fetch(`${API_URL}/api/password/${id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type":"application/json",
-                "Authorization":"Bearer " + token
-            },
-            body: JSON.stringify({ website, username, password })
-        });
-
-        if (!res.ok) throw new Error();
-
-        const data = await res.json();
-        showToast(data.message || "Updated");
-
-        if (passwordsLoaded) loadPasswords();
-
-    } catch (err) {
-        console.log(err);
-        showToast("Update failed ❌");
-    }
-}
-
-function editPassword(id, website, username, password) {
-    const newWebsite = prompt("Edit Website:", website);
-    if (newWebsite === null) return;
-
-    const newUsername = prompt("Edit Username:", username);
-    if (newUsername === null) return;
-
-    const newPassword = prompt("Edit Password:", password);
-    if (newPassword === null) return;
-
-    if (!newWebsite.trim() || !newUsername.trim() || !newPassword.trim()) {
-        showToast("Fields cannot be empty ❗");
-        return;
-    }
-
-    updatePassword(id, newWebsite, newUsername, newPassword);
-}
-
-function clearInputs(){
-    document.getElementById("website").value="";
-    document.getElementById("username").value="";
-    document.getElementById("password").value="";
-}
-function checkStrength(password) {
-    const barContainer = document.getElementById("strengthBar");
-    const text = document.getElementById("strengthText");
-
-    if (!barContainer || !text) return;
-
-    const bar = barContainer.querySelector("div");
-    if (!bar) return;
-
-    let strength = 0;
-
-    if (password.length > 5) strength++;
-    if (password.length > 8) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/[0-9]/.test(password)) strength++;
-    if (/[@$!%*?&]/.test(password)) strength++;
-
-    let percent = strength * 20;
-
-    let color = "red";
-    let label = "Weak";
-
-    if (strength >= 2) {
-        color = "orange";
-        label = "Medium";
-    }
-
-    if (strength >= 4) {
-        color = "#22c55e";
-        label = "Strong";
-    }
-
-    bar.style.width = percent + "%";
-    bar.style.background = color;
-    text.innerText = "Strength: " + label;
+function clearInputs() {
+    document.getElementById("website").value = "";
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
 }

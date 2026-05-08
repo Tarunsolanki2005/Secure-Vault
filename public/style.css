@@ -1,3 +1,4 @@
+
 /* RESET */
 body {
     font-family: 'Segoe UI', sans-serif;
@@ -337,7 +338,7 @@ button:hover {
     border-radius: 10px;
 }
 #strengthBar {
-    height: 6px;
+    height: 10px;
     width: 100%;
     margin-top: 8px;
     border-radius: 6px;
@@ -348,7 +349,7 @@ button:hover {
     height: 100%;
     width: 0%;
     background: red;
-    transition: 0.3s;
+    transition: width 0.3s ease, background 0.3s ease;
 }
 
 #strengthText {

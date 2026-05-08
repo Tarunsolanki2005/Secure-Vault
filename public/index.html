@@ -5,7 +5,7 @@
     <title>SecureVault</title>
 
     <!-- CSS -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1">
 
     <!-- Optional favicon fix (removes 404 error) -->
     <link rel="icon" href="data:,">
@@ -50,10 +50,10 @@
                oninput="checkStrength(this.value)">
 
         <div id="strengthBar">
-            <div></div>
+            <div id="strengthFill"></div>
         </div>
 
-<p id="strengthText"></p>
+        <p id="strengthText"></p>
         <button onclick="register()">Register</button>
         <button onclick="showLogin()">Back</button>
     </div>
