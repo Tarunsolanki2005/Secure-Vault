@@ -38,7 +38,10 @@
   <div id="loginSection" class="container">
     <h3>Login</h3>
     <input id="loginUsername" placeholder="Username">
-    <input id="loginPassword" type="password" placeholder="Password">
+    <div class="input-group">
+      <input id="loginPassword" type="password" placeholder="Password">
+      <i class="fa fa-eye eye" onclick="togglePass(this, 'loginPassword')"></i>
+    </div>
 
     <button class="primary" onclick="login()">Login</button>
     <button class="secondary" onclick="showRegister()">Register</button>
@@ -49,11 +52,8 @@
     <h3>Register</h3>
     <input id="registerUsername" placeholder="Username">
     <div class="input-group">
-      <input id="registerPassword"
-             type="password"
-             placeholder="Password"
-             oninput="checkStrength(this.value)">
-      <i class="fa fa-eye eye" onclick="togglePass(this, document.getElementById('registerPassword').value)"></i>
+      <input id="registerPassword" type="password" placeholder="Password" oninput="checkStrength(this.value)">
+      <i class="fa fa-eye eye" onclick="togglePass(this, 'registerPassword')"></i>
     </div>
 
     <div id="strengthBar">
@@ -73,9 +73,15 @@
   <input id="website" placeholder="Website">
   <input id="username" placeholder="Username">
   <div class="input-group">
-    <input id="password" type="password" placeholder="Password">
-    <i class="fa fa-eye eye" onclick="togglePass(this, document.getElementById('password').value)"></i>
+    <input id="password" type="password" placeholder="Password" oninput="checkStrength(this.value)">
+    <i class="fa fa-eye eye" onclick="togglePass(this, 'password')"></i>
   </div>
+
+  <!-- Strength bar under dashboard password -->
+  <div id="strengthBar">
+    <div id="strengthFill"></div>
+  </div>
+  <p id="strengthText"></p>
 
   <button class="generate-btn" onclick="generatePassword()">Generate Strong Password</button>
   <button class="primary" onclick="savePassword()">Save Password</button>
