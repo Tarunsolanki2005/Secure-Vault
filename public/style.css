@@ -337,23 +337,3 @@ button:hover {
     border: 1px solid rgba(255,255,255,0.06);
     border-radius: 10px;
 }
-#strengthBar {
-    height: 10px;
-    width: 100%;
-    margin-top: 8px;
-    border-radius: 6px;
-    background: rgba(255,255,255,0.08);
-    overflow: hidden;
-}
-#strengthBar div {
-    height: 100%;
-    width: 0%;
-    background: red;
-    transition: width 0.3s ease, background 0.3s ease;
-}
-
-#strengthText {
-    font-size: 12px;
-    margin-top: 5px;
-    color: #94a3b8;
-}

@@ -96,40 +96,6 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove("show"), 2000);
 }
 
-// ================= PASSWORD STRENGTH =================
-function checkStrength(password) {
-  const bar = document.getElementById("strengthFill");
-  const text = document.getElementById("strengthText");
-
-  if (!bar || !text) return;
-
-  let strength = 0;
-
-  if (password.length > 5) strength++;
-  if (password.length > 8) strength++;
-  if (/[A-Z]/.test(password)) strength++;
-  if (/[0-9]/.test(password)) strength++;
-  if (/[@$!%*?&]/.test(password)) strength++;
-
-  let percent = (strength / 5) * 100;
-
-  let color = "red";
-  let label = "Weak";
-
-  if (strength >= 2) {
-    color = "orange";
-    label = "Medium";
-  }
-  if (strength >= 4) {
-    color = "#22c55e";
-    label = "Strong";
-  }
-
-  bar.style.width = percent + "%";
-  bar.style.background = color;
-  text.innerText = "Strength: " + label;
-}
-
 // ================= GENERATE PASSWORD =================
 function generatePassword() {
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
@@ -140,13 +106,13 @@ function generatePassword() {
   }
 
   document.getElementById("password").value = pass;
-  checkStrength(pass);
 }
+
+
 
 // ================= SAVE =================
 async function savePassword() {
   const token = localStorage.getItem("token");
-
   if (!token) {
     showToast("Login first ❌");
     return;
@@ -162,22 +128,42 @@ async function savePassword() {
   }
 
   try {
-    const res = await fetch(`${API_URL}/api/password/add`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
-      },
-      body: JSON.stringify({ website, username, password })
-    });
+    let res;
+    if (window.editingId) {
+      // ✅ Update existing entry
+      res = await fetch(`${API_URL}/api/password/${window.editingId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ website, username, password })
+      });
+
+      // reset edit mode
+      window.editingId = null;
+
+      // only reset dashboard Save button text (not login!)
+      const saveBtn = document.getElementById("saveBtn");
+      if (saveBtn) saveBtn.innerText = "Save Password";
+
+    } else {
+      // ✅ Add new entry
+      res = await fetch(`${API_URL}/api/password/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ website, username, password })
+      });
+    }
 
     if (!res.ok) throw new Error();
-
     const data = await res.json();
     showToast(data.message || "Saved ✅");
 
     if (passwordsLoaded) loadPasswords();
-
     clearInputs();
 
   } catch (err) {
@@ -315,3 +301,15 @@ function clearInputs() {
   document.getElementById("username").value = "";
   document.getElementById("password").value = "";
 }
+async function editPassword(id, website, username, password) {
+  // Fill the dashboard form with the selected entry
+  document.getElementById("website").value = website;
+  document.getElementById("username").value = username;
+  document.getElementById("password").value = password;
+
+  // Store the id being edited so Save knows what to update
+  window.editingId = id;
+
+  showToast("Editing entry… update fields and click Save");
+}
+
