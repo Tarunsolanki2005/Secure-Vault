@@ -1,88 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>SecureVault</title>
+  <meta charset="UTF-8">
+  <title>SecureVault</title>
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css?v=1">
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css?v=1">
 
-    <!-- Optional favicon fix (removes 404 error) -->
-    <link rel="icon" href="data:,">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Optional favicon fix -->
+  <link rel="icon" href="data:,">
 </head>
 
 <body>
 
 <!-- HERO SECTION -->
 <div class="hero">
-    <h1 class="logo">SecureVault</h1>
-    <p class="tagline">Store your passwords securely with encryption 🔐</p>
+  <h1 class="logo">SecureVault</h1>
+  <p class="tagline">Store your passwords securely with encryption 🔐</p>
 </div>
 <div class="project-info">
-    <p>🔐 AES-style secure storage • 💾 Local encrypted vault • ⚡ Fast password manager</p>
+  <p>🔐 AES-style secure storage • 💾 Local encrypted vault • ⚡ Fast password manager</p>
 </div>
 <div class="floating-icons">
-    <span>🔐</span>
-    <span>🛡️</span>
-    <span>🔑</span>
-    <span>💾</span>
+  <span>🔐</span>
+  <span>🛡️</span>
+  <span>🔑</span>
+  <span>💾</span>
 </div>
+
 <!-- AUTH SECTION -->
 <div class="auth-wrapper">
 
-    <!-- LOGIN -->
-    <div id="loginSection" class="container">
-        <h3>Login</h3>
-        <input id="loginUsername" placeholder="Username">
-        <input id="loginPassword" type="password" placeholder="Password">
+  <!-- LOGIN -->
+  <div id="loginSection" class="container">
+    <h3>Login</h3>
+    <input id="loginUsername" placeholder="Username">
+    <input id="loginPassword" type="password" placeholder="Password">
 
-        <button onclick="login()">Login</button>
-        <button onclick="showRegister()">Register</button>
+    <button class="primary" onclick="login()">Login</button>
+    <button class="secondary" onclick="showRegister()">Register</button>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="registerSection" class="container" style="display:none;">
+    <h3>Register</h3>
+    <input id="registerUsername" placeholder="Username">
+    <div class="input-group">
+      <input id="registerPassword"
+             type="password"
+             placeholder="Password"
+             oninput="checkStrength(this.value)">
+      <i class="fa fa-eye eye" onclick="togglePass(this, document.getElementById('registerPassword').value)"></i>
     </div>
 
-    <!-- REGISTER -->
-    <div id="registerSection" class="container" style="display:none;">
-        <h3>Register</h3>
-        <input id="registerUsername" placeholder="Username">
-        <input id="registerPassword"
-               type="password"
-               placeholder="Password"
-               oninput="checkStrength(this.value)">
-
-        <div id="strengthBar">
-            <div id="strengthFill"></div>
-        </div>
-
-        <p id="strengthText"></p>
-        <button onclick="register()">Register</button>
-        <button onclick="showLogin()">Back</button>
+    <div id="strengthBar">
+      <div id="strengthFill"></div>
     </div>
+    <p id="strengthText"></p>
+
+    <button class="primary" onclick="register()">Register</button>
+    <button class="secondary" onclick="showLogin()">Back</button>
+  </div>
 
 </div>
 
 <!-- DASHBOARD -->
 <div id="dashboardSection" class="dashboard-box" style="display:none;">
 
-    <input id="website" placeholder="Website">
-    <input id="username" placeholder="Username">
+  <input id="website" placeholder="Website">
+  <input id="username" placeholder="Username">
+  <div class="input-group">
     <input id="password" type="password" placeholder="Password">
+    <i class="fa fa-eye eye" onclick="togglePass(this, document.getElementById('password').value)"></i>
+  </div>
 
-    <button onclick="generatePassword()">Generate Strong Password</button>
+  <button class="generate-btn" onclick="generatePassword()">Generate Strong Password</button>
+  <button class="primary" onclick="savePassword()">Save Password</button>
+  <button class="secondary" onclick="loadPasswords()">Load Passwords</button>
+  <button class="danger" onclick="logout()">Logout</button>
 
-    <button onclick="savePassword()">Save Password</button>
-    <button onclick="loadPasswords()">Load Passwords</button>
-    <button onclick="logout()">Logout</button>
+  <input id="searchBar" placeholder="Search..." onkeyup="filterPasswords()">
 
-    <input id="searchBar" placeholder="Search..." onkeyup="filterPasswords()">
-
-    <div id="list"></div>
-
+  <div id="list"></div>
 </div>
 
 <!-- TOAST -->
 <div id="toast"></div>
 
-<!-- ✅ ONLY SCRIPT (VERY IMPORTANT) -->
+<!-- ✅ SCRIPT -->
 <script src="script.js"></script>
 
 </body>
